@@ -249,10 +249,9 @@ static NSString *const FBSDKAppLinkInboundEvent = @"fb_al_inbound";
   _pendingURLOpen = sender;
   dispatch_async(dispatch_get_main_queue(), ^{
     // Dispatch openURL calls to prevent hangs if we're inside the current app delegate's openURL flow already
-    NSOperatingSystemVersion iOS10Version = { .majorVersion = 10, .minorVersion = 0, .patchVersion = 0 };
-    if ([FBSDKInternalUtility isOSRunTimeVersionAtLeast:iOS10Version]) {
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
       [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:handler];
-    } else {
+#else
       BOOL opened = [[UIApplication sharedApplication] openURL:url];
 
       if ([url.scheme hasPrefix:@"http"] && !opened) {
@@ -266,7 +265,7 @@ static NSString *const FBSDKAppLinkInboundEvent = @"fb_al_inbound";
       if (handler) {
         handler(opened);
       }
-    }
+#endif
   });
 }
 
